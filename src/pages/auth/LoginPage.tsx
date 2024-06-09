@@ -1,20 +1,31 @@
 import { FormEvent } from 'react';
+import { useAuthStore } from '../../stores';
+import { useNavigate } from 'react-router-dom';
 
 export const LoginPage = () => {
 
-  const onSubmit = (event: FormEvent<HTMLFormElement> ) => {
+  const navigate = useNavigate();
+  const loginUser = useAuthStore(state => state.loginUser);
+
+  const onSubmit = async(event: FormEvent<HTMLFormElement> ) => {
+
     event.preventDefault();
     // const { username, password, remember } = event.target as HTMLFormElement;
     const { username, password,remember } = event.target as typeof event.target & {
-      username: { value: string };
+      username: { value: string }; //this is actually email
       password: { value: string };
       remember: { checked: boolean }
     };
-    console.log(username.value, password.value, remember.checked);
 
-    username.value = '';
-    password.value = '';
-    remember.checked = false;
+    try {
+      await loginUser(username.value, password.value);
+      navigate('/dashboard');
+      } catch (error) {
+        console.log('no se pudo loguear', error)
+      }
+      // username.value = '';
+      // password.value = '';
+      // remember.checked = false;
   }
 
 
@@ -25,7 +36,7 @@ export const LoginPage = () => {
       <form onSubmit={ onSubmit }>
 
         <div className="mb-4">
-          <label className="block text-gray-600">Username</label>
+          <label className="block text-gray-600">Email</label>
           <input type="text" name="username" autoComplete="off" />
         </div>
 
